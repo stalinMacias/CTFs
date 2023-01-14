@@ -16,15 +16,6 @@ async function main() {
   // funding macias(player) account
   await this.token.connect(ganacheAccount).transfer(macias.address,20)
 
-  // Deployed on Goerli
-  //[macias] = await ethers.getSigners();
-
-  // Get an instance of the contract deployed by Ethernaut
-  //const TokenAddress = "0x28316c8880342375a0a31743607b4EDB48c1e221"
-  //this.token = await hre.ethers.getContractAt("Token",TokenAddress);
-
-
-
   console.log(
     `
     Token contract address: ${await this.token.address} \n
@@ -32,7 +23,6 @@ async function main() {
     Macias token's balance: ${await this.token.balanceOf(macias.address)} \n
     `
   );
-
 
   console.log("\n\n Performing attack ... \n\n");
 
@@ -57,7 +47,6 @@ async function main() {
     Macias token's balance: ${await this.token.balanceOf(macias.address)} \n
     `
   );
-
 
 }
 
