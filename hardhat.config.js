@@ -7,6 +7,8 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const GANACHE_URL = process.env.GANACHE_URL;
 const GANACHE_ACCOUNT_1_PRIVATE_KEYS = process.env.GANACHE_ACCOUNT_1_PRIVATE_KEYS;
 const GANACHE_ACCOUNT_2_PRIVATE_KEYS = process.env.GANACHE_ACCOUNT_2_PRIVATE_KEYS;
+
+const FORK_GOERLI_URL = process.env.FORK_GOERLI_URL;
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
@@ -46,6 +48,10 @@ module.exports = {
         GANACHE_ACCOUNT_1_PRIVATE_KEYS,   // This is the first account that Ganache creates by default
         GANACHE_ACCOUNT_2_PRIVATE_KEYS,   // This is the second account that Ganache creates by default
       ],
+    },
+    goerli_fork: {
+      url: FORK_GOERLI_URL,
+      accounts: [PRIVATE_KEY],
     }
   },
 };
