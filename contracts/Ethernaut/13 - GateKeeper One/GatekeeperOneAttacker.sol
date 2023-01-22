@@ -44,10 +44,11 @@ contract GatekeeperOneAttacker {
   //          uint32                      ==              uint16                      ===>           uint32(uint16)
   // XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX  ==  -------- -------- XXXXXXXX XXXXXXXX     ===>    00000000 00000000 XXXXXXXX XXXXXXXX
 
-  // 
+  // uint32(k) = uint32(k16)
+  // uint k16 = uint16(uint160(tx.origin))
 
-                  // Opening Condition 2 //
-  // uint32(k) == uint16(k);                          | Condition 2
+                  // Opening Condition 1 //
+  // uint32(k) == uint16(k);                          | Condition 1
 
   /*
       if      uint32(uint64(_gateKey)) == uint16(uint160(tx.origin))   (Condition 3)
@@ -68,35 +69,34 @@ contract GatekeeperOneAttacker {
 
   // uint k16 = uint16(uint160(tx.origin))
 
-            /// Opening Condition 1 ///
-  
+            /// Opening Condition 2 ///
   // uint32(k) != k;          <--- How to force that k which is an uint64 will have a different value when is casted to 32bits?
 
-  // When casting from uint64 to uint32, what will happen is that the 32 first most-right bits will be rid-off and the uint32 will only contain the last 32 most-left bits
+  // When casting from uint64 to uint32, what will happen is that the 32 first most-left bits will be rid-off and the uint32 will only contain the last 32 most-rigth bits
       // Original uint64 ====> XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
       // Casting to uint32 ==> -------- -------- XXXXXXXX XXXXXXXX
 
-  // So, the safest way to ensure that the original uint64 is different than the casted uint32 is by having a 1 at the first bit at the right, thay bit will be taken away from the uint32
+  // So, the safest way to ensure that the original uint64 is different than the casted uint32 is by having a 1 at the first bit at the left, thay bit will be taken away from the uint32
 
   // And when the casted uint32 is then re-casted back to uint64, the resultant value will be full zero-padded on the first 32 bits
-      // Original uint64      ===> 1XXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX            <----> The original uint64 has the 1 at the first right bit
+      // Original uint64      ===> 1XXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX            <----> The original uint64 has the 1 at the first left bit
       // uint32(uint64)       ===> -------- -------- XXXXXXXX XXXXXXXX
       // uint64(uint32(uint64)) => 00000000 00000000 XXXXXXXX XXXXXXXX            <----> The recasted uint32(uint64) to uint64 lost the 1 from the original uint64, thus, uint32(k) != k
 
   // k = uint64(_gateKey);
 
-  // k16 will be zero-padded at the right from its 16bits up to 64bits
+  // k16 will be zero-padded at the left from its 16bits up to 64bits
           
   // The k16 casted to 64 will be something like:                         00000000 00000000 00000000 00000000 00000000 00000000 00000000 XXXXXXXX 
           
   // Adding the mask + the uint64(k16)
       // The result will be an uint64 binary number similar to
 
-                  // 10000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+                  // 10000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 (mask)
                   //                                  +
-                  // 00000000 00000000 00000000 00000000 00000000 00000000 00000000 XXXXXXXX 
+                  // 00000000 00000000 00000000 00000000 00000000 00000000 XXXXXXXX XXXXXXXX uint64(k16)
                   // =======================================================================
-  // uint64 k64 =    10000000 00000000 00000000 00000000 00000000 00000000 00000000 XXXXXXXX
+  // uint64 k64 =    10000000 00000000 00000000 00000000 00000000 00000000 XXXXXXXX XXXXXXXX
 
   /*
       uint32(k) != k
