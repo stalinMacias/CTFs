@@ -15,7 +15,11 @@ contract BuyerContract {
   }
 
   function price() public view returns (uint) {
-    return shopContract.price() + 1;
+    if(shopContract.isSold()) {
+      return 0;
+    } else {
+      return shopContract.price() + 1;
+    }
   }
 
 }
