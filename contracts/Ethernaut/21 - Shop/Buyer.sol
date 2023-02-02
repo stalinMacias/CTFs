@@ -15,6 +15,7 @@ contract BuyerContract {
   }
 
   function price() public view returns (uint) {
+    //@audit -> Buyer contract uses the isSold variable to manipulate the end price of the purchase
     if(shopContract.isSold()) {
       return 0;
     } else {
