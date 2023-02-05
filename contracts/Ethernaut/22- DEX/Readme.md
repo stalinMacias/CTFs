@@ -1,5 +1,5 @@
 # Challenge's Description
-The goal of this level is for you to hack the basic DEX contract below and steal the funds by price manipulation.
+The goal of this level is for you to hack the basic DEX contract below and steal the funds by `price manipulation`
 
 - <b>You will start with 10 tokens of `token1` and 10 of `token2`.</b>
 - <b>The DEX contract starts with 100 of each token</b>
