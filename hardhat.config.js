@@ -63,6 +63,9 @@ module.exports = {
         GANACHE_CLI_ACCOUNT_1_PRIVATE_KEYS,   // This is the first account that Ganache-CLI creates by default
         GANACHE_CLI_ACCOUNT_2_PRIVATE_KEYS,   // This is the second account that Ganache-CLI creates by default
       ],
+      // issue: https://github.com/NomicFoundation/hardhat/issues/3136
+      // workaround: https://github.com/NomicFoundation/hardhat/issues/2672#issuecomment-1167409582
+      timeout: 100_000,
     },
     goerli_fork: {
       url: FORK_GOERLI_URL,
