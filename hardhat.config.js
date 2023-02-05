@@ -4,9 +4,16 @@ require("dotenv").config();
 
 const QUICKNODE_HTTP_URL_GOERLI = process.env.QUICKNODE_HTTP_URL_GOERLI;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
+// Ganache UI
 const GANACHE_URL = process.env.GANACHE_URL;
 const GANACHE_ACCOUNT_1_PRIVATE_KEYS = process.env.GANACHE_ACCOUNT_1_PRIVATE_KEYS;
 const GANACHE_ACCOUNT_2_PRIVATE_KEYS = process.env.GANACHE_ACCOUNT_2_PRIVATE_KEYS;
+
+// Ganache CLI
+const GANACHE_CLI_URL = process.env.GANACHE_CLI_URL;
+const GANACHE_CLI_ACCOUNT_1_PRIVATE_KEYS = process.env.GANACHE_CLI_ACCOUNT_1_PRIVATE_KEYS;
+const GANACHE_CLI_ACCOUNT_2_PRIVATE_KEYS = process.env.GANACHE_CLI_ACCOUNT_2_PRIVATE_KEYS;
 
 const FORK_GOERLI_URL = process.env.FORK_GOERLI_URL;
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -47,6 +54,14 @@ module.exports = {
         PRIVATE_KEY,                      // This is Macias account
         GANACHE_ACCOUNT_1_PRIVATE_KEYS,   // This is the first account that Ganache creates by default
         GANACHE_ACCOUNT_2_PRIVATE_KEYS,   // This is the second account that Ganache creates by default
+      ],
+    },
+    ganache_cli_latest_version: {
+      url: GANACHE_CLI_URL,
+      accounts: [
+        PRIVATE_KEY,                      // This is Macias account
+        GANACHE_CLI_ACCOUNT_1_PRIVATE_KEYS,   // This is the first account that Ganache-CLI creates by default
+        GANACHE_CLI_ACCOUNT_2_PRIVATE_KEYS,   // This is the second account that Ganache-CLI creates by default
       ],
     },
     goerli_fork: {
