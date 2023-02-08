@@ -44,6 +44,7 @@ contract PuzzleProxy is ERC1967Proxy {
 contract PuzzleWallet {
     // @audit-info The Logic contract will cause a storage collision because Slot 0 and Slot 1 are been used for different variables than Slots on the Proxy contract!
     // @audit - When the Logic contract eexecutes a delegatecall from the Proxy contract it will use the Proxy's storage
+    
     address public owner;                         // Slot 0   <==> pendingAdmin on the PuzzleProxy contract
     uint256 public maxBalance;                    // Slot 1   <==> admin ont eh PuzzleProxy contract!
     mapping(address => bool) public whitelisted;  // Slot who know which? The hash of .....
@@ -83,6 +84,7 @@ contract PuzzleWallet {
         require(success, "Execution failed");
     }
 
+    // Each position of the parameter data[] is a call, it is composed of the function's signature and all the required parameters to call that function!
     function multicall(bytes[] calldata data) external payable onlyWhitelisted {
         bool depositCalled = false;
         for (uint256 i = 0; i < data.length; i++) {
