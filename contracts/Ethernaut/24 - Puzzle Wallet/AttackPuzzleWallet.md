@@ -1,6 +1,13 @@
 
  # Attack Objective: Become the admin of the PuzzleProxy contract
 
+  ## Vulnerabilities
+  ### 1.- Storage Collision because the wrong implementation on the state variables between the proxy and the implementation contracts
+  ### 2.- deposit() uses msg.value to update the depositor's balance, if deposit() is called multiple times within the same transaction, msg.value will be reused on each message_call, but the real ETH added to the contract's balance will be only the value of msg.value (only 1 time!)...
+  ### 3.- multicall() doesn't implement a mechanism to prevent it from being re-executed multiple times within the same transaction!
+
+  ## Hint: When auditing a contract, look for vectors of attack where msg.value could be re-used
+
   ## Attack Steps:
 
   ### 1.- Take ownership of the PuzzleWallet contract & Add Player's address to whitelist
