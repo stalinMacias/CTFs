@@ -39,6 +39,10 @@ async function main() {
   // Creating an instance of the deployed Motorbike contract using the logic of the Engine contract
   this.engineContractProxyInstance = await hre.ethers.getContractAt("Engine",MotorbikeContractAddress);
 
+  // Get the address of the Implementation contract directly from the reserved slot on the Proxy contract to store the address of its Implementation contract!
+  const IMPLEMENTATION_CONTRACT_ADDRESS_SLOT = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
+  const ImplementationAddress = await hre.ethers.provider.getStorageAt(MotorbikeContractAddress, IMPLEMENTATION_CONTRACT_ADDRESS_SLOT);
+
 
   console.log(
     `
@@ -52,7 +56,9 @@ async function main() {
     horsePower - ENGINE: ${await this.engineContract.horsePower()} \n
 
     StorageAt slot0: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,0)}
-    StorageAt slot1: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,1)}
+    StorageAt slot1: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,1)} \n
+
+    Implementation Address from its slot: ${ImplementationAddress}
     `
   );
 
