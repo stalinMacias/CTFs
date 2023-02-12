@@ -1,3 +1,5 @@
+// Challenge objective: Would you be able to selfdestruct its engine and make the motorbike unusable ?
+
 // SPDX-License-Identifier: MIT
 
 pragma solidity <0.7.0;
