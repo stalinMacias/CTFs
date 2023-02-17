@@ -54,7 +54,7 @@ async function main() {
   // Deploying the DetectionBot contract
   console.log("Deploying the DetectionBot");
   const DetectionBot = await hre.ethers.getContractFactory("DetectionBot");
-  this.detectionBot = await DetectionBot.connect(player).deploy(FORTA_CONTRACT_ADDRESS,LEGACY_TOKEN_CONTRACT_ADDRESS,DET_TOKEN_CONTRACT_ADDRESS);
+  this.detectionBot = await DetectionBot.connect(player).deploy(FORTA_CONTRACT_ADDRESS,LEGACY_TOKEN_CONTRACT_ADDRESS,DET_TOKEN_CONTRACT_ADDRESS,CRYPTO_VAULT_ADDRESS);
   await this.detectionBot.deployed();
 
   const DETECTIONBOT_ADDRESS = this.detectionBot.address;
@@ -87,6 +87,7 @@ async function main() {
     expect(await this.detectionBot.fortaContract()).to.eq(FORTA_CONTRACT_ADDRESS)
     expect(await this.detectionBot.LegacyToken()).to.eq(LEGACY_TOKEN_CONTRACT_ADDRESS)
     expect(await this.detectionBot.DET_Token()).to.eq(DET_TOKEN_CONTRACT_ADDRESS)
+    expect(await this.detectionBot.CryptoVaultContract()).to.eq(CRYPTO_VAULT_ADDRESS);
     expect(await this.fortaContract.usersDetectionBots(player.address)).to.eq(DETECTIONBOT_ADDRESS);
     expect(await this.cryptoVaultContract.underlying()).to.eq(DET_Token)
   
